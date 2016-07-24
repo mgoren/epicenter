@@ -29,6 +29,9 @@
     <div class="panel-body">
       <p><%= pluralize(course.internships.count, 'internship') %></p>
       <p><%= pluralize(course.total_internship_students_requested, 'student') %> requested</p>
+      <p>
+        <%= link_to 'All rankings', course_ratings_path(course) %>
+      </p>
 
       <% if course.active? %>
         <%= form_for course, method: :put do |f| %>

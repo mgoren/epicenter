@@ -1,0 +1,22 @@
+<h1><%= @course.description %> rankings</h1>
+
+<div class="table-responsive">
+  <table class="table table-hover datatable">
+    <thead>
+      <tr>
+        <th>Internship</th>
+        <th>Student</th>
+        <th>Ranking</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% Rating.where(internship_id: @course.internships.map(&:id)).each do |rating| %>
+        <tr>
+          <td><%= rating.internship.name %></td>
+          <td><%= rating.student.name %></td>
+          <td><%= rating.number %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,22 +1,31 @@
 <h1><%= @course.description %> rankings</h1>
 
-<div class="table-responsive">
-  <table class="table table-hover datatable">
-    <thead>
-      <tr>
-        <th>Internship</th>
-        <th>Student</th>
-        <th>Ranking</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% Rating.where(internship_id: @course.internships.map(&:id)).each do |rating| %>
+<%= form_for @course, url: export_ratings_path, method: :post do |f| %>
+  <%= hidden_field_tag :course_id, @course.id %>
+  <p><%= f.submit 'Export data', class: 'btn btn-default' %></p>
+
+  <div class="table-responsive">
+    <table class="table table-hover datatable">
+      <thead>
         <tr>
-          <td><%= rating.internship.name %></td>
-          <td><%= rating.student.name %></td>
-          <td><%= rating.number %></td>
+          <th>Student</th>
+          <% @course.internships.order(:name).each do |internship| %>
+            <th><%= internship.name %></th>
+          <% end %>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        <% @course.students.order(:name).each do |student| %>
+          <tr>
+            <td><%= link_to student.name, course_student_path(@course, student) %></td>
+            <% @course.internships.order(:name).each do |internship| %>
+              <td>
+                <%= Rating.find_by(internship_id: internship.id, student_id: student.id).try(:number) %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

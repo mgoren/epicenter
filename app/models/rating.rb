@@ -14,4 +14,18 @@ class Rating < ActiveRecord::Base
       current_student.ratings.new
     end
   end
+
+  def self.export_to_csv
+    require 'csv'
+
+    attributes = %w{student internship number}
+
+    CSV.generate(headers: true) do |csv|
+      csv << attributes
+
+      all.each do |rating|
+        csv << attributes.map{ |attr| rating.send(attr) }
+      end
+    end
+  end
 end

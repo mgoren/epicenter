@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get 'sign_out', to: 'attendance_sign_out#new'
   get 'welcome', to: 'static_pages#show'
   get 'auth/:provider/callback', to: 'omniauth_callbacks#create'
+  post 'export_ratings', to: 'export_ratings#create', defaults: { format: 'csv' }
 
   devise_for :student, controllers: { invitations: 'invitations', registrations: 'registrations' }
   devise_for :admins, skip: :registrations

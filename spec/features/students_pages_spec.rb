@@ -120,8 +120,8 @@ feature "Student signs in while class is not in session" do
     it "shows them their payment history" do
       FactoryGirl.create(:verified_bank_account, student: student)
       sign_in_as(student)
-      visit student_payments_path(student)
-      expect(page).to have_content "Your payments"
+      visit student_path(student)
+      expect(page).to have_content "Payments"
     end
   end
 
@@ -129,8 +129,8 @@ feature "Student signs in while class is not in session" do
     it "shows them their payment history" do
       FactoryGirl.create(:credit_card, student: student)
       sign_in_as(student)
-      visit student_payments_path(student)
-      expect(page).to have_content "Your payments"
+      visit student_path(student)
+      expect(page).to have_content "Payments"
     end
   end
 end
@@ -163,7 +163,7 @@ feature "Student signs in while class is in session" do
     it "takes them to the courses page" do
       sign_in_as(student)
       expect(current_path).to eq student_courses_path(student)
-      expect(page).to have_content "Your courses"
+      expect(page).to have_content "Courses"
     end
 
     it "does not create an attendance record" do
@@ -330,7 +330,7 @@ feature 'Guest not signed in' do
 
   context 'visits payments path' do
     let(:student) { FactoryGirl.create(:student) }
-    before { visit student_payments_path(student) }
+    before { visit student_path(student) }
     it { should have_content 'You need to sign in' }
   end
 end
@@ -346,7 +346,7 @@ feature 'unenrolled student signs in' do
   end
 
   it 'student can view the payments page' do
-    visit student_payments_path(student)
+    visit student_path(student)
     expect(page).to have_content 'Your payment methods'
   end
 
@@ -357,11 +357,12 @@ feature 'unenrolled student signs in' do
 end
 
 feature 'viewing the student show page' do
-  let(:student) { FactoryGirl.create(:user_with_all_documents_signed) }
+  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card) }
 
   before { login_as(student, scope: :student) }
 
-  scenario 'as a student viewing his/her own page' do
+  scenario 'as a student viewing his/her own page', :stripe_mock do
+    FactoryGirl.create(:payment_with_credit_card, student: student)
     visit course_student_path(student.course, student)
     expect(page).to have_content student.course.description
   end

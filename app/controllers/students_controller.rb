@@ -1,5 +1,6 @@
 class StudentsController < ApplicationController
   authorize_resource
+  before_filter :ensure_student_has_primary_payment_method, only: [:show]
 
   def index
     authorize! :manage, Course
@@ -14,9 +15,14 @@ class StudentsController < ApplicationController
 
   def show
     @student = Student.find(params[:id])
+    authorize! :manage, @student
     @course = Course.find(params[:course_id]) if params[:course_id]
     @interview_assignment = InterviewAssignment.new
-    authorize! :read, @student
+    if current_student && @student.upfront_payment_due?
+      @payment = Payment.new(amount: @student.upfront_amount_with_fees)
+    elsif current_admin
+      @payment = Payment.new
+    end
   end
 
   def update
@@ -68,6 +74,13 @@ private
       @student = Student.find(params[:id])
       @course = Course.find(Rails.application.routes.recognize_path(request.referrer)[:course_id])
       render 'students/show'
+    end
+  end
+
+  def ensure_student_has_primary_payment_method
+    student = Student.find(params[:id])
+    if current_student && !student.primary_payment_method && student == current_student
+      redirect_to payment_methods_path
     end
   end
 end

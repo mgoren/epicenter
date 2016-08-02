@@ -75,9 +75,10 @@ end
 
 feature 'shows internship details modal from the interview assignments list' do
   let(:internship) { FactoryGirl.create(:internship) }
-  let(:student) { FactoryGirl.create(:user_with_all_documents_signed, course: internship.courses.first) }
+  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, course: internship.courses.first) }
 
-  scenario 'as a student' do
+  scenario 'as a student', :stripe_mock do
+    FactoryGirl.create(:payment_with_credit_card, student: student)
     FactoryGirl.create(:interview_assignment, student: student, internship: internship, course: internship.courses.first)
     login_as(student, scope: :student)
     visit course_student_path(internship.courses.first, student)

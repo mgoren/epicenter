@@ -2,33 +2,23 @@ class PaymentsController < ApplicationController
   authorize_resource
   before_filter :ensure_student_has_primary_payment_method, except: [:update]
 
-  def index
-    @student = Student.find(params[:student_id])
-    authorize! :manage, @student
-    if current_student && @student.upfront_payment_due?
-      @payment = Payment.new(amount: @student.upfront_amount_with_fees)
-    elsif current_admin
-      @payment = Payment.new
-    end
-  end
-
   def create
     @student = Student.find(params[:student_id])
     @payment = Payment.new(payment_params)
     if @payment.save
-      redirect_to student_payments_path(@student), notice: "Manual payment successfully made for #{@student.name}."
+      redirect_to student_path(@student), notice: "Manual payment successfully made for #{@student.name}."
     else
-      render 'index'
+      render 'students/show'
     end
   end
 
   def update
     @payment = Payment.find(params[:id])
     if @payment.update(payment_params)
-      redirect_to student_payments_path(@payment.student), notice: "Refund successfully issued for #{@payment.student.name}."
+      redirect_to student_path(@payment.student), notice: "Refund successfully issued for #{@payment.student.name}."
     else
       @student = @payment.student
-      render 'index'
+      render 'students/show'
     end
   end
 

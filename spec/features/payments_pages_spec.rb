@@ -1,7 +1,7 @@
 feature 'Viewing payment index page' do
   scenario 'as a guest' do
     student = FactoryGirl.create(:student)
-    visit student_payments_path(student)
+    visit student_path(student)
     expect(page).to have_content 'need to sign in'
   end
 
@@ -9,7 +9,7 @@ feature 'Viewing payment index page' do
     scenario "without a primary payment method" do
       student = FactoryGirl.create(:user_with_all_documents_signed)
       login_as(student, scope: :student)
-      visit student_payments_path(student)
+      visit student_path(student)
       expect(page).to have_content "Your payment methods"
     end
 
@@ -18,7 +18,7 @@ feature 'Viewing payment index page' do
         student = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card)
         student_2 = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card)
         login_as(student, scope: :student)
-        visit student_payments_path(student_2)
+        visit student_path(student_2)
         expect(page).to have_content "You are not authorized to access this page."
       end
     end
@@ -27,7 +27,7 @@ feature 'Viewing payment index page' do
       it "doesn't show payment history" do
         student = FactoryGirl.create(:user_with_credit_card)
         login_as(student, scope: :student)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_content "No payments have been made yet."
       end
     end
@@ -37,7 +37,7 @@ feature 'Viewing payment index page' do
         student = FactoryGirl.create(:user_with_verified_bank_account, email: 'test@test.com')
         FactoryGirl.create(:payment_with_bank_account, amount: 600_00, student: student)
         login_as(student, scope: :student)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_content 600.00
         expect(page).to have_content "Pending"
         expect(page).to have_content "Bank account ending in 6789"
@@ -49,8 +49,9 @@ feature 'Viewing payment index page' do
         student = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com')
         FactoryGirl.create(:payment_with_credit_card, amount: 600_00, student: student)
         login_as(student, scope: :student)
-        visit student_payments_path(student)
-        expect(page).to have_content 618.21
+        visit student_path(student)
+        expect(page).to have_content 600.00
+        expect(page).to have_content 18.21
         expect(page).to have_content "Succeeded"
         expect(page).to have_content "Credit card ending in 4242"
       end
@@ -61,7 +62,7 @@ feature 'Viewing payment index page' do
         plan = FactoryGirl.create(:upfront_payment_only_plan, upfront_amount: 200_00)
         student = FactoryGirl.create(:user_with_verified_bank_account, email: 'test@test.com', plan: plan)
         login_as(student, scope: :student)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_button('Make upfront payment of $200.00')
       end
     end
@@ -71,7 +72,7 @@ feature 'Viewing payment index page' do
         plan = FactoryGirl.create(:upfront_payment_only_plan, upfront_amount: 200_00)
         student = FactoryGirl.create(:user_with_credit_card, plan: plan)
         login_as(student, scope: :student)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_button('Make upfront payment of $206.27')
       end
     end
@@ -81,17 +82,16 @@ feature 'Viewing payment index page' do
     let(:admin) { FactoryGirl.create(:admin) }
     before { login_as(admin, scope: :admin) }
 
-    scenario "for a student without a primary payment method" do
+    scenario "for a student without a primary payment method", :js do
       student = FactoryGirl.create(:user_with_all_documents_signed)
-      visit student_payments_path(student)
+      visit student_path(student)
       expect(page).to have_content "No payments have been made yet."
-      expect(page).to have_content "No primary payment method has been selected"
     end
 
     context 'before any payments have been made', :stripe_mock do
       it "doesn't show payment history" do
         student = FactoryGirl.create(:user_with_credit_card)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_content "No payments have been made yet."
       end
     end
@@ -100,7 +100,7 @@ feature 'Viewing payment index page' do
       it 'shows payment history with correct charge and status' do
         student = FactoryGirl.create(:user_with_all_documents_signed_and_verified_bank_account, email: 'test@test.com')
         payment = FactoryGirl.create(:payment_with_bank_account, amount: 600_00, student: student)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_content 600.00
         expect(page).to have_content "Pending"
         expect(page).to have_content "Bank account ending in 6789"
@@ -112,8 +112,9 @@ feature 'Viewing payment index page' do
       it 'shows payment history with correct charge and status' do
         student = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com')
         payment = FactoryGirl.create(:payment_with_credit_card, amount: 600_00, student: student)
-        visit student_payments_path(student)
-        expect(page).to have_content 618.21
+        visit student_path(student)
+        expect(page).to have_content 600.00
+        expect(page).to have_content 18.21
         expect(page).to have_content "Succeeded"
         expect(page).to have_content "Credit card ending in 4242"
         expect(page).to have_css "#refund-#{payment.id}-button"
@@ -125,7 +126,7 @@ feature 'Viewing payment index page' do
         student = FactoryGirl.create(:user_with_all_documents_signed_and_verified_bank_account, email: 'test@test.com')
         payment = FactoryGirl.create(:payment_with_bank_account, amount: 600_00, student: student)
         payment.update(refund_amount: 300_00)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_content '$300.00'
       end
     end
@@ -135,7 +136,7 @@ feature 'Viewing payment index page' do
         student = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com')
         payment = FactoryGirl.create(:payment_with_credit_card, amount: 600_00, student: student)
         payment.update(refund_amount: 200_00)
-        visit student_payments_path(student)
+        visit student_path(student)
         expect(page).to have_content '$200.00'
       end
     end
@@ -150,7 +151,7 @@ feature 'issuing an offline refund as an admin', :stripe_mock do
   before { login_as(admin, scope: :admin) }
 
   scenario 'successfully without cents' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in "refund-#{payment.id}-input", with: 60
     click_on 'Refund'
     expect(page).to have_content "Refund successfully issued for #{payment.student.name}."
@@ -166,7 +167,7 @@ feature 'issuing a refund as an admin', :vcr, :stub_mailgun do
   before { login_as(admin, scope: :admin) }
 
   scenario 'successfully without cents' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in "refund-#{payment.id}-input", with: 60
     click_on 'Refund'
     expect(page).to have_content "Refund successfully issued for #{payment.student.name}."
@@ -174,7 +175,7 @@ feature 'issuing a refund as an admin', :vcr, :stub_mailgun do
   end
 
   scenario 'successfully with cents' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in "refund-#{payment.id}-input", with: 60.18
     click_on 'Refund'
     expect(page).to have_content "Refund successfully issued for #{payment.student.name}."
@@ -182,7 +183,7 @@ feature 'issuing a refund as an admin', :vcr, :stub_mailgun do
   end
 
   scenario 'unsuccessfully with an improperly formatted amount', :js do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in "refund-#{payment.id}-input", with: 60.1
     message = accept_prompt do
       click_on 'Refund'
@@ -191,14 +192,14 @@ feature 'issuing a refund as an admin', :vcr, :stub_mailgun do
   end
 
   scenario 'unsuccessfully with an amount that is too large' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in "refund-#{payment.id}-input", with: 200
     click_on 'Refund'
     expect(page).to have_content 'Refund amount ($200.00) is greater than charge amount ($103.28)'
   end
 
   scenario 'unsuccessfully with a negative amount' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in "refund-#{payment.id}-input", with: -16.46
     click_on 'Refund'
     expect(page).to have_content 'Invalid positive integer'
@@ -212,18 +213,19 @@ feature 'make a manual payment', :stripe_mock, :stub_mailgun do
   before { login_as(admin, scope: :admin) }
 
   scenario 'successfully with cents', :vcr do
-    visit student_payments_path(student)
+    visit student_path(student)
     select student.primary_payment_method.description
     fill_in 'payment_amount', with: 1765.24
     click_on 'Manual payment'
     expect(page).to have_content "Manual payment successfully made for #{student.name}."
     expect(page).to have_content 'Succeeded'
-    expect(page).to have_content '$1,818.26'
+    expect(page).to have_content '$1,765.24'
+    expect(page).to have_content '$53.02'
   end
 
   scenario 'successfully with multiple payment methods', :vcr do
     other_payment_method = FactoryGirl.create(:bank_account, student: student)
-    visit student_payments_path(student)
+    visit student_path(student)
     select other_payment_method.description
     fill_in 'payment_amount', with: 1765.24
     click_on 'Manual payment'
@@ -233,16 +235,17 @@ feature 'make a manual payment', :stripe_mock, :stub_mailgun do
   end
 
   scenario 'successfully without cents', :vcr do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in 'payment_amount', with: 1765
     click_on 'Manual payment'
     expect(page).to have_content "Manual payment successfully made for #{student.name}."
     expect(page).to have_content 'Succeeded'
-    expect(page).to have_content '$1,818.01'
+    expect(page).to have_content '$1,765.00'
+    expect(page).to have_content '$53.01'
   end
 
   scenario 'unsuccessfully with an improperly formatted amount', :js do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in 'payment_amount', with: 60.1
     message = accept_prompt do
       click_on 'Manual payment'
@@ -251,14 +254,14 @@ feature 'make a manual payment', :stripe_mock, :stub_mailgun do
   end
 
   scenario 'with an invalid amount' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in 'payment_amount', with: 5100
     click_on 'Manual payment'
     expect(page).to have_content 'Amount cannot be greater than $5,000.'
   end
 
   scenario 'unsuccessfully with a negative amount' do
-    visit student_payments_path(student)
+    visit student_path(student)
     fill_in 'payment_amount', with: -16.46
     click_on 'Manual payment'
     expect(page).to have_content 'Invalid positive integer'
@@ -266,19 +269,20 @@ feature 'make a manual payment', :stripe_mock, :stub_mailgun do
 
   scenario 'with no primary payment method selected' do
     student = FactoryGirl.create(:user_with_all_documents_signed)
-    visit student_payments_path(student)
-    expect(page).to have_content 'No primary payment method has been selected'
+    visit student_path(student)
+    expect(page).to have_content 'No payments have been made yet'
   end
 
   scenario 'successfully with mismatching Epicenter and Close.io emails', :vcr do
     student = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'wrong_email@test.com')
-    visit student_payments_path(student)
+    visit student_path(student)
     select student.primary_payment_method.description
     fill_in 'payment_amount', with: 1765.24
     click_on 'Manual payment'
     expect(page).to have_content "Manual payment successfully made for #{student.name}."
     expect(page).to have_content 'Succeeded'
-    expect(page).to have_content '$1,818.26'
+    expect(page).to have_content '$1,765.24'
+    expect(page).to have_content '$53.02'
   end
 end
 
@@ -289,7 +293,7 @@ feature 'make an offline payment', :stripe_mock, :js do
   before { login_as(admin, scope: :admin) }
 
   scenario 'successfully with cents' do
-    visit student_payments_path(student)
+    visit student_path(student)
     check 'offline-payment-checkbox'
     fill_in 'Notes', with: 'Test offline payment'
     fill_in 'payment_amount', with: 60.18

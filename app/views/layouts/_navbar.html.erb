@@ -16,7 +16,7 @@
           <% end %>
 
           <%= set_navbar_link_class('payments') do %>
-            <%= link_to 'Payments', student_payments_path(current_student) %>
+            <%= link_to 'Payments', student_path(current_student) %>
           <% end %>
 
           <%= set_navbar_link_class('payment_methods') do %>
@@ -32,7 +32,7 @@
           <% end %>
         <% elsif current_student && current_student.courses.empty? %>
           <%= set_navbar_link_class('payments') do %>
-            <%= link_to 'Payments', student_payments_path(current_student) %>
+            <%= link_to 'Payments', student_path(current_student) %>
           <% end %>
 
           <%= set_navbar_link_class('payment_methods') do %>

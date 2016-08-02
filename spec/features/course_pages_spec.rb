@@ -66,7 +66,7 @@ feature 'viewing courses' do
   scenario 'as a student logged in' do
     login_as(student, scope: :student)
     visit student_courses_path(student)
-    expect(page).to have_content 'Your courses'
+    expect(page).to have_content 'Courses'
   end
 
   scenario 'as a guest' do

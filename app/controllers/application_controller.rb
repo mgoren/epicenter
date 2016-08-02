@@ -59,7 +59,7 @@ protected
 
   def proper_payments_path(user)
     if user.primary_payment_method.present?
-      student_payments_path(user)
+      student_path(user)
     elsif user.bank_accounts.first.present?
       payment_methods_path
     else

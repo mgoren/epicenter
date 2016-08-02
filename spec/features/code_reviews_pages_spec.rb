@@ -47,7 +47,7 @@ feature 'viewing the code review index page' do
     end
 
     scenario 'changes lesson order' do
-      another_assesment = FactoryGirl.create(:code_review, course: code_review.course)
+      FactoryGirl.create(:code_review, course: code_review.course)
       visit course_path(code_review.course)
       click_on 'Save order'
       expect(page).to have_content 'Order has been saved'
@@ -81,9 +81,14 @@ feature 'visiting the code review show page' do
     end
   end
 
-  context 'as a student' do
-    let(:student) { FactoryGirl.create(:user_with_all_documents_signed, course: code_review.course) }
-    before { login_as(student, scope: :student) }
+  context 'as a student', :stripe_mock do
+    let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, course: code_review.course) }
+
+    before do
+      FactoryGirl.create(:payment_with_credit_card, student: student)
+      login_as(student, scope: :student)
+    end
+
     subject { page }
 
     context 'before submitting' do

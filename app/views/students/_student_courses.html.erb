@@ -1,9 +1,4 @@
-<% if current_student %>
-  <h1>Your courses</h1>
-<% else %>
-  <%= render 'students/student_header' %>
-  <%= render 'students/student_nav' %>
-<% end %>
+<h1>Courses</h1>
 
 <% if @student.courses.any? %>
   <div class="table-responsive">

@@ -1,0 +1,63 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="panel panel-default">
+      <div class="panel-body">
+
+        <% if @student.payment_methods_primary_first_then_pending.present? %>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Primary</th>
+                  <th>Type</th>
+                  <th>Number</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @student.payment_methods_primary_first_then_pending.each do |payment_method| %>
+                  <% if payment_method == @student.primary_payment_method %>
+                    <tr class="info">
+                      <td class="primary-payment-method">
+                        <span class="check-mark">✓</span>
+                      </td>
+                  <% elsif !payment_method.verified? %>
+                    <tr class="alert">
+                      <td>
+                      </td>
+                  <% else %>
+                    <tr>
+                      <td>
+                        <% if payment_method.verified? %>
+                          <%= form_for payment_method.student, html: {class: 'payment-button-form'} do |f| %>
+                            <%= f.hidden_field :primary_payment_method_id, value: payment_method.id %>
+                            <%= f.submit 'Make Primary', class: 'btn btn-primary', data: { confirm: "Change primary payment method?" } %>
+                          <% end %>
+                        <% end %>
+                      </td>
+                  <% end %>
+                    <td>
+                      <%= payment_method.class.name.underscore.humanize %>
+                    </td>
+                    <td>
+                      <%= payment_method.last_four_string %>
+                    </td>
+                    <td>
+                      <% unless payment_method.verified? %>
+                        <%= link_to 'Verify Account', edit_bank_account_path(payment_method), class: 'btn btn-info verify-button-link' %>
+                      <% else %>
+                        Verified
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p>Looks like you haven't added any payment methods yet.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

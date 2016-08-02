@@ -2,14 +2,8 @@ class CoursesController < ApplicationController
   authorize_resource
 
   def index
-    if params[:student_id]
-      @student = Student.find(params[:student_id])
-      @courses = @student.courses
-      authorize! :manage, @student
-    else
-      @courses = Course.all.includes(:admin).includes(:office)
-      authorize! :manage, Course
-    end
+    @courses = Course.all.includes(:admin).includes(:office)
+    authorize! :manage, Course
   end
 
   def show

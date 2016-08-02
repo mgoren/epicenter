@@ -1,6 +1,6 @@
 <% if current_admin %>
   <h1>
-    <%= link_to student_courses_path(@student), class: 'h1 text-primary' do %>
+    <%= link_to student_path(@student), class: 'h1 text-primary' do %>
       <%= @student.name %>
     <% end %>
   </h1>

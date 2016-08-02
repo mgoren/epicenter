@@ -1,7 +1,7 @@
 <% if current_admin %>
   <ul class="nav nav-tabs list-group">
     <%= set_navbar_link_class('courses') do %>
-      <%= link_to 'Courses', student_courses_path(@student) %>
+      <%= link_to 'Courses', student_path(@student) %>
     <% end %>
 
     <%= set_navbar_link_class('payments') do %>

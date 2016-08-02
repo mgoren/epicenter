@@ -1,25 +1,21 @@
-<% if @student %>
-  <%= render 'students/student_courses' %>
+<h1>
+  Courses
+  <%= link_to 'New', new_course_path %>
+</h1>
+
+<% if current_admin.courses.any? %>
+  <h3>Your courses</h3>
+  <%= render 'courses/course_list', courses: current_admin.courses.includes(:office) %>
+
+  <h3>Other courses</h3>
+  <%= render 'courses/course_list', courses: current_admin.other_courses %>
 <% else %>
-  <h1>
-    Courses
-    <%= link_to 'New', new_course_path %>
-  </h1>
+  <h3>Future courses</h3>
+  <%= render 'courses/course_list', courses: @courses.future_courses %>
 
-  <% if current_admin.courses.any? %>
-    <h3>Your courses</h3>
-    <%= render 'courses/course_list', courses: current_admin.courses.includes(:office) %>
+  <h3>Current courses</h3>
+  <%= render 'courses/course_list', courses: @courses.current_courses %>
 
-    <h3>Other courses</h3>
-    <%= render 'courses/course_list', courses: current_admin.other_courses %>
-  <% else %>
-    <h3>Future courses</h3>
-    <%= render 'courses/course_list', courses: @courses.future_courses %>
-
-    <h3>Current courses</h3>
-    <%= render 'courses/course_list', courses: @courses.current_courses %>
-
-    <h3>Previous courses</h3>
-    <%= render 'courses/course_list', courses: @courses.previous_courses %>
-  <% end %>
+  <h3>Previous courses</h3>
+  <%= render 'courses/course_list', courses: @courses.previous_courses %>
 <% end %>

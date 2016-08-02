@@ -10,54 +10,54 @@
         <p class="text-primary">* Payments made with a credit/debit card will be charged a 2.9% processing fee + 30¢ per transaction.</p>
 
         <%= render 'layouts/errors', object: @payment %>
-        <% if @student.payments.present? %>
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Fee</th>
-                  <th>Payment method</th>
-                  <% if can?(:manage, Payment) %>
-                    <th>Notes</th>
-                  <% end %>
-                  <% if can?(:manage, Payment) || @student.payments.pluck(:refund_amount).any? %>
-                    <th>Refund amount</th>
-                  <% end %>
-                </tr>
-              </thead>
-              <tbody>
-                <% @student.payments.order_by_latest.each do |payment| %>
-                  <tr>
-                    <td><%= payment.try(:status).try(:capitalize) %></td>
-                    <td><%= payment.try(:created_at).try(:strftime, "%A, %B %d, %Y") %></td>
-                    <td><%= number_to_currency(payment.amount / 100.00) %></td>
-                    <td><%= number_to_currency(payment.fee / 100.00) %></td>
-                    <td><%= payment.payment_method.description if payment.payment_method %></td>
-                    <% if can? :manage, Payment %>
-                      <td><%= payment.notes %></td>
-                    <% end %>
-                      <% if payment.refund_amount? %>
-                        <td class="col-md-3">
-                          <%= number_to_currency(payment.refund_amount / 100.00) %>
-                        </td>
-                      <% else %>
-                        <% if can? :manage, Payment %>
-                          <td class="col-md-3">
-                            <%= render 'payments/refund_form', payment: payment %>
-                          </td>
-                        <% end %>
-                      <% end %>
-                  </tr>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Fee</th>
+                <th>Payment method</th>
+                <% if can?(:manage, Payment) %>
+                  <th>Notes</th>
                 <% end %>
-              </tbody>
-            </table>
-          </div>
-          <p><strong>Total paid: <%= number_to_currency(@student.total_paid / 100.00) %></strong></p>
-        <% else %>
-          <p>No payments have been made yet.</p>
+                <% if can?(:manage, Payment) || @student.payments.pluck(:refund_amount).any? %>
+                  <th>Refund amount</th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% @student.payments.order_by_latest.each do |payment| %>
+                <tr>
+                  <td><%= payment.try(:status).try(:capitalize) %></td>
+                  <td><%= payment.try(:created_at).try(:strftime, "%A, %B %d, %Y") %></td>
+                  <td><%= number_to_currency(payment.amount / 100.00) %></td>
+                  <td><%= number_to_currency(payment.fee / 100.00) %></td>
+                  <td><%= payment.payment_method.description if payment.payment_method %></td>
+                  <% if can? :manage, Payment %>
+                    <td><%= payment.notes %></td>
+                  <% end %>
+                    <% if payment.refund_amount? %>
+                      <td class="col-md-3">
+                        <%= number_to_currency(payment.refund_amount / 100.00) %>
+                      </td>
+                    <% else %>
+                      <% if can? :manage, Payment %>
+                        <td class="col-md-3">
+                          <%= render 'payments/refund_form', payment: payment %>
+                        </td>
+                      <% end %>
+                    <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Total paid: <%= number_to_currency(@student.total_paid / 100.00) %></strong></p>
+
+        <% if current_student && @student.upfront_payment_due? %>
+          <%= render 'payments/upfront_payment_button' %>
         <% end %>
       </div>
     </div>
@@ -69,11 +69,22 @@
         <div class="col-md-12">
           <div class="panel panel-default">
             <div class="panel-body">
+              <p><strong>Add payment method</strong></p>
+              <p><%= link_to 'Add credit card', new_credit_card_path %></p>
+              <p><%= link_to 'Add bank account', new_bank_account_path %></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-body">
               <p><strong>Primary payment method</strong></p>
               <p>All payments will be made using your primary payment method.</p>
             </div>
           </div>
         </div>
+
         <div class="col-md-12">
           <div class="panel panel-default">
             <div class="panel-body">
@@ -85,16 +96,20 @@
       </div>
     </div>
   <% end %>
+
+
+    <% if current_student %>
+      <div class="col-md-9">
+        <h3>Payment methods</h3>
+        <%= render 'students/student_payment_methods' %>
+      </div>
+    <% end %>
 </div>
 
-<% if current_student %>
-  <% if @student.upfront_payment_due? %>
-    <%= render 'payments/upfront_payment_button' %>
-  <% end %>
-<% elsif can?(:manage, Payment) && params[:action] != 'update' %>
-  <h3>Manual payment <small class="text-info">($5,000 limit)</small></h3>
+<% if can?(:manage, Payment) && params[:action] != 'update' %>
   <div class="row">
     <div class="col-md-5">
+      <h3>Manual payment <small class="text-info">($5,000 limit)</small></h3>
       <div class="panel panel-default">
         <div class="panel-body">
           <%= render 'payments/form' %>

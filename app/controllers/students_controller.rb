@@ -49,7 +49,7 @@ private
       if params[:student][:interview_feedback]
         redirect_to course_student_path(Course.find(params[:course_id]), @student), notice: "Interview feedback added for #{@student.name}."
       else
-        redirect_to student_courses_path(@student), notice: "Courses for #{@student.name} have been updated."
+        redirect_to student_path(@student), notice: "Courses for #{@student.name} have been updated."
       end
     else
       @course = Course.find(params[:student][:course_id])

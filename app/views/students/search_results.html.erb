@@ -15,8 +15,7 @@
                 <span class="label label-success pull-right">Current student</span>
               <% end %>
 
-              <p><%= link_to 'Courses', student_courses_path(student) %></p>
-              <p><%= link_to 'Payments', student_path(student) %></p>
+              <p><%= link_to 'Courses & Payments', student_path(student) %></p>
               <p><%= link_to 'Internships', course_student_path(student.internship_course, student) if student.internship_course %></p>
             </div>
           </div>

@@ -12,11 +12,7 @@
       <ul class="nav navbar-nav">
         <% if current_student && current_student.courses.any? %>
           <%= set_navbar_link_class('courses') do %>
-            <%= link_to 'Courses', student_courses_path(current_student), class: 'first-navbar-link' %>
-          <% end %>
-
-          <%= set_navbar_link_class('payments') do %>
-            <%= link_to 'Payments', student_path(current_student) %>
+            <%= link_to 'Profile', student_path(current_student), class: 'first-navbar-link' %>
           <% end %>
 
           <%= set_navbar_link_class('payment_methods') do %>
@@ -25,10 +21,6 @@
 
           <%= set_navbar_link_class('random_pairs') do %>
             <%= link_to 'Pair suggestions', random_pairs_path %>
-          <% end %>
-
-          <%= set_navbar_link_class('registrations') do %>
-            <%= link_to 'Profile', edit_student_registration_path %>
           <% end %>
         <% elsif current_student && current_student.courses.empty? %>
           <%= set_navbar_link_class('payments') do %>

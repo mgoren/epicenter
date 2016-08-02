@@ -16,7 +16,7 @@ class EnrollmentsController < ApplicationController
     course = Course.find(params[:course_id])
     enrollment = Enrollment.find_by(course_id: course.id, student_id: student.id)
     enrollment.destroy
-    redirect_to student_courses_path(student), notice: "#{course.description} has been removed"
+    redirect_to student_path(student), notice: "#{course.description} has been removed"
   end
 
 private

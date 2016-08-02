@@ -3,6 +3,10 @@
 <% else %>
   <h1><%= @student.name %></h1>
 
+  <% if current_student %>
+    <p><%= link_to 'Edit account info', edit_student_registration_path %></p>
+  <% end %>
+
   <% if current_admin %>
     <% if !@student.signed_main_documents? %>
       <h4>Not all documents have been signed.</h4>
@@ -19,6 +23,9 @@
       <p><span class="label label-success">Current student</span></p>
     <% end %>
   <% end %>
+
+  <h3>Courses</h3>
+  <%= render 'students/student_courses' %>
 
   <h3>Payments</h3>
   <%= render 'students/student_payments' %>

@@ -4,8 +4,9 @@ feature 'searching for a student' do
     expect(page).to have_content 'You need to sign in.'
   end
 
-  scenario 'as a student' do
-    student = FactoryGirl.create(:user_with_all_documents_signed)
+  scenario 'as a student', :stripe_mock, :stub_mailgun, :vcr do
+    student = FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com')
+    FactoryGirl.create(:payment_with_credit_card, student: student)
     login_as(student, scope: :student)
     visit students_path
     expect(page).to have_content 'Courses'

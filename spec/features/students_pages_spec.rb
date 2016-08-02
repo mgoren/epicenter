@@ -156,17 +156,20 @@ feature "Unenrolled student signs in" do
   end
 end
 
-feature "Student signs in while class is in session" do
-  let(:student) { FactoryGirl.create(:user_with_all_documents_signed, password: 'password1', password_confirmation: 'password1') }
+feature "Student signs in while class is in session", :stripe_mock, :stub_mailgun do
+  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com', password: 'password1', password_confirmation: 'password1') }
+
 
   context "not at school" do
-    it "takes them to the courses page" do
+    before { FactoryGirl.create(:payment_with_credit_card, student: student) }
+
+    it "takes them to the courses page", :vcr do
       sign_in_as(student)
-      expect(current_path).to eq student_courses_path(student)
+      expect(current_path).to eq student_path(student)
       expect(page).to have_content "Courses"
     end
 
-    it "does not create an attendance record" do
+    it "does not create an attendance record", :vcr do
       expect { sign_in_as(student) }.to change { AttendanceRecord.count }.by 0
     end
   end
@@ -201,7 +204,7 @@ feature "Student signs in while class is in session" do
       it "takes them to the courses page if they've already signed in" do
         FactoryGirl.create(:attendance_record, student: student)
         sign_in_as(student)
-        expect(current_path).to eq student_courses_path(student)
+        expect(current_path).to eq student_path(student)
       end
 
       it 'does not update the attendance record on subsequent solo sign ins during the day' do
@@ -356,12 +359,12 @@ feature 'unenrolled student signs in' do
   end
 end
 
-feature 'viewing the student show page' do
-  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card) }
+feature 'viewing the student show page', :stripe_mock, :stub_mailgun do
+  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com') }
 
   before { login_as(student, scope: :student) }
 
-  scenario 'as a student viewing his/her own page', :stripe_mock do
+  scenario 'as a student viewing his/her own page', :vcr do
     FactoryGirl.create(:payment_with_credit_card, student: student)
     visit course_student_path(student.course, student)
     expect(page).to have_content student.course.description

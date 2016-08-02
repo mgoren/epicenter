@@ -6,7 +6,7 @@ feature 'adding another course for a student' do
   before { login_as(admin, scope: :admin) }
 
   scenario 'as an admin on the individual student page' do
-    visit student_courses_path(student)
+    visit student_path(student)
     select other_course.description, from: 'student_course_id'
     click_on 'Add course'
     expect(page).to have_content other_course.description
@@ -28,7 +28,7 @@ feature 'deleting a course for a student' do
 
   scenario 'as an admin' do
     student.update(course: other_course)
-    visit student_courses_path(student)
+    visit student_path(student)
     within "#student-course-#{other_course.id}" do
       click_on 'Withdraw'
     end

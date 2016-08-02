@@ -108,9 +108,9 @@ end
 
 feature 'ranking an internship' do
   let(:internship_course) { FactoryGirl.create(:internship_course) }
-  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, course: internship_course) }
+  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, course: internship_course, email: 'test@test.com') }
 
-  scenario 'a student can rate an internship from the internships index page', :js, :stripe_mock do
+  scenario 'a student can rate an internship from the internships index page', :js, :stripe_mock, :stub_mailgun, :vcr do
     FactoryGirl.create(:payment_with_credit_card, student: student)
     FactoryGirl.create(:internship, courses: [student.course])
     login_as(student, scope: :student)

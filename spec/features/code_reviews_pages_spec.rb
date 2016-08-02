@@ -81,8 +81,8 @@ feature 'visiting the code review show page' do
     end
   end
 
-  context 'as a student', :stripe_mock do
-    let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, course: code_review.course) }
+  context 'as a student', :stripe_mock, :stub_mailgun, :vcr do
+    let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, course: code_review.course, email: 'test@test.com') }
 
     before do
       FactoryGirl.create(:payment_with_credit_card, student: student)
@@ -333,7 +333,7 @@ feature 'deleting a code review' do
   end
 
   scenario 'with existing submissions' do
-    submission = FactoryGirl.create(:submission, code_review: code_review)
+    FactoryGirl.create(:submission, code_review: code_review)
     visit code_review_path(code_review)
     click_link 'Delete'
     expect(page).to have_content "Cannot delete a code review with existing submissions."

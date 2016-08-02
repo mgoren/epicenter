@@ -28,7 +28,7 @@ feature 'Viewing payment index page' do
         student = FactoryGirl.create(:user_with_credit_card)
         login_as(student, scope: :student)
         visit student_path(student)
-        expect(page).to have_content "No payments have been made yet."
+        expect(page).to have_content "Payments made with a credit/debit card will be charged"
       end
     end
 
@@ -85,14 +85,14 @@ feature 'Viewing payment index page' do
     scenario "for a student without a primary payment method", :js do
       student = FactoryGirl.create(:user_with_all_documents_signed)
       visit student_path(student)
-      expect(page).to have_content "No payments have been made yet."
+      expect(page).to have_content "Payments made with a credit/debit card will be charged"
     end
 
     context 'before any payments have been made', :stripe_mock do
       it "doesn't show payment history" do
         student = FactoryGirl.create(:user_with_credit_card)
         visit student_path(student)
-        expect(page).to have_content "No payments have been made yet."
+        expect(page).to have_content "Payments made with a credit/debit card will be charged"
       end
     end
 
@@ -270,7 +270,7 @@ feature 'make a manual payment', :stripe_mock, :stub_mailgun do
   scenario 'with no primary payment method selected' do
     student = FactoryGirl.create(:user_with_all_documents_signed)
     visit student_path(student)
-    expect(page).to have_content 'No payments have been made yet'
+    expect(page).to have_content 'Payments made with a credit/debit card will be charged'
   end
 
   scenario 'successfully with mismatching Epicenter and Close.io emails', :vcr do

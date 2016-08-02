@@ -60,17 +60,19 @@ feature 'creating a course' do
   end
 end
 
-feature 'viewing courses' do
-  let(:student) { FactoryGirl.create(:student) }
+feature 'viewing courses', :stripe_mock, :stub_mailgun, :vcr do
+  let(:student) { FactoryGirl.create(:user_with_all_documents_signed_and_credit_card, email: 'test@test.com') }
+
+  before { FactoryGirl.create(:payment_with_credit_card, student: student) }
 
   scenario 'as a student logged in' do
     login_as(student, scope: :student)
-    visit student_courses_path(student)
+    visit student_path(student)
     expect(page).to have_content 'Courses'
   end
 
   scenario 'as a guest' do
-    visit student_courses_path(student)
+    visit student_path(student)
     expect(page).to have_content 'You need to sign in.'
   end
 end
